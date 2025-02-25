@@ -260,11 +260,6 @@ myotis_data <- weekly_summary %>%
   ) %>%
   na.omit()  # Remove any remaining NA values
 
-library(ggplot2)
-library(dplyr)
-library(lubridate)
-library(tidyr)
-library(zoo)  # For interpolation
 
 # Ensure date format is correct
 insects <- insects %>%
@@ -419,10 +414,18 @@ gam_model <- gam(Mean_Nightly_Calls ~ s(Total_Insects_Per_Week) + Habitat, famil
 summary(gam_model)
 plot(gam_model)
 
-##
+##look at each habitat 
 combined_data$Habitat <- as.factor(combined_data$Habitat)
 
 gam_model_interact <- gam(Mean_Nightly_Calls ~ s(Total_Insects_Per_Week, by = Habitat) + Habitat, 
                           family = nb(), data = combined_data)
 summary(gam_model_interact)
+
+ggplot(combined_data, aes(x = Total_Insects_Per_Week, y = Mean_Nightly_Calls, color = Habitat)) +
+  geom_point() +
+  geom_smooth(method = "gam", formula = y ~ s(x), se = TRUE) +
+  facet_wrap(~ Habitat, scales = "free") +
+  labs(title = "Bat Calls vs. Insect Abundance by Habitat",
+       x = "Weekly Insect Abundance",
+       y = "Mean Weekly Bat Calls")
 
